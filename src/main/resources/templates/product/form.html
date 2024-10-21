@@ -1,0 +1,16 @@
+<form th:action="@{~/product/save}" th:object="${product}" method="post">
+    <input type="hidden" name="id" id="id" th:field="*{id}">
+    <div class="mb-3">
+        <label for="productName" class="form-label">Product Name</label>
+        <input type="text" class="form-control" name="name" id="productName" placeholder="Input Product Name" th:field="*{name}">
+    </div>
+    <div class="mb-3">
+        <label for="productInitial" class="form-label">Initial</label>
+        <input type="text" class="form-control" name="initial" id="productInitial" placeholder="Input Product Initial" th:field="*{initial}">
+    </div>
+    <div class="mb-3">
+        <label for="categoryId" class="form-label">Category ID</label>
+        <input type="number" class="form-control" name="categoryId" id="categoryId" placeholder="Input Category Initial" th:field="*{categoryId}">
+    </div>
+    <button type="submit" class="btn btn-primary" style="float: right;">Save</button>
+</form>

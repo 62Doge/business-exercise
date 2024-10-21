@@ -1,0 +1,5 @@
+<p>Are you sure to delete this data?</p>
+Variant Name: <span th:text="${variant.name}"></span><br>
+Initial: <span th:text="${variant.initial}"></span><br>
+<hr>
+<button class="btn btn-danger" th:value="${variant.id}" onclick="confirm('Are you sure?', deleteVariant(this.value))" style="float: right;">Delete</button>

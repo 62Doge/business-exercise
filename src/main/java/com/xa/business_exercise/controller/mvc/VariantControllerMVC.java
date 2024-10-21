@@ -1,0 +1,75 @@
+package com.xa.business_exercise.controller.mvc;
+
+import com.xa.business_exercise.model.Product;
+import com.xa.business_exercise.model.Variant;
+import com.xa.business_exercise.repository.VariantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/variant")
+public class VariantControllerMVC {
+    @Autowired
+    private VariantRepository variantRepository;
+
+    @GetMapping("")
+    public ModelAndView getVariant() {
+        ModelAndView view = new ModelAndView("variant/index");
+        List<Variant> variants = variantRepository.findByProductActiveTrue();
+        view.addObject("variants", variants);
+        view.addObject("title", "Master Variant");
+        return view;
+    }
+
+    @GetMapping("/form")
+    public ModelAndView form() {
+        ModelAndView view = new ModelAndView("variant/form");
+        view.addObject("variant", new Variant());
+        return view;
+    }
+
+    @PostMapping("/save")
+    public ModelAndView save(@ModelAttribute Variant variant, BindingResult result) {
+        if (!result.hasErrors()) {
+            variantRepository.save(variant);
+        }
+        return new ModelAndView("redirect:/variant");
+    }
+
+    @GetMapping("/edit/{id}")
+    public ModelAndView edit(@PathVariable Long id) {
+        ModelAndView view = new ModelAndView("variant/form");
+        Variant variant = variantRepository.findById(id).orElse(null);
+        view.addObject("variant", variant);
+        return view;
+    }
+
+    @GetMapping("/deleteForm/{id}")
+    public ModelAndView deleteForm(@PathVariable("id") Long id) {
+        ModelAndView view = new ModelAndView("variant/deleteForm");
+        Variant variant = variantRepository.findById(id).orElse(null);
+        view.addObject("variant", variant);
+        return view;
+    }
+
+    @GetMapping("/soft-delete/{id}")
+    public ModelAndView softDelete(@PathVariable("id") Long id) {
+        Variant variant = variantRepository.findById(id).orElse(null);
+
+        if (variant != null) {
+            variantRepository.softDeleteById(variant.getId());
+        }
+        return new ModelAndView("redirect:/variant");
+    }
+
+    @GetMapping("/delete/{id}")
+    public ModelAndView deleteCategory(@PathVariable("id") Long id) {
+        variantRepository.deleteById(id);
+        return new ModelAndView("redirect:/variant");
+    }
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<body>
+<section layout:fragment="container">
+    <div class="container mt-3">
+        <h1 th:text="${title}"></h1>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary mt-1 mb-3" onclick="openForm()">
+            Add Variant Data
+        </button>
+
+        <table class="table table-bordered table-striped table-hover table-sm">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Initial</th>
+                <th scope="col">Description</th>
+                <th scope="col">Product Id</th>
+                <th scope="col">Price</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Created At</th>
+                <th scope="col">Updated At</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="variant, iter : ${variants}">
+                <th scope="row" th:text="${iter.count}"></th>
+                <td th:text="${variant.name}"></td>
+                <td th:text="${variant.initial}"></td>
+                <td th:text="${variant.description}"></td>
+                <td th:text="${variant.productId}"></td>
+                <td th:text="${variant.price}"></td>
+                <td th:text="${variant.stock}"></td>
+                <td th:text="${variant.createdAt}"></td>
+                <td th:text="${variant.updatedAt}"></td>
+                <td>
+                    <button class="btn btn-warning" th:value="${variant.id}" onclick="editForm(this.value)">Edit</button>
+                    <button class="btn btn-danger" th:value="${variant.id}" onclick="deleteForm(this.value)">Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="myModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/variant.js}"></script>
+</section>
+</body>
+</html>
