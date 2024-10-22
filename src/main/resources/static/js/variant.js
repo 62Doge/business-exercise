@@ -41,6 +41,22 @@ function editForm(id) {
             $('#myModal').modal('show');
             $('.modal-title').html("Variant Form");
             $('.modal-body').html(variantForm);
+
+            const categoryId = $('#categoryId').val();
+            const selectedProductId = $('#productId').val();
+
+            // const variantData = $('#variantForm').data('variant');
+            // const selectedCategoryId = variantData.product.categoryId;
+            // const selectedProductId = variantData.productId;
+
+            $('#categoryId').val(categoryId);
+            updateProduct(categoryId);
+
+            // $('#categoryId').val(selectedCategoryId);
+            // updateProduct(selectedCategoryId);
+            setTimeout(() => {
+                $('#productId').val(selectedProductId);
+            }, 500);
         }
     });
 }

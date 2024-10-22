@@ -65,9 +65,17 @@ public class VariantControllerMVC {
     public ModelAndView edit(@PathVariable Long id) {
         ModelAndView view = new ModelAndView("variant/form");
         Variant variant = variantRepository.findById(id).orElse(null);
-        List<Category> categories = categoryRepository.findByActiveTrue();
+        List<Product> products = productRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+
+        Long categoryId = null;
+        if (variant != null && variant.getProduct() != null) {
+            categoryId = variant.getProduct().getCategory().getId();  // Get Category ID from Product
+        }
 
         view.addObject("variant", variant);
+        view.addObject("products", products);
+        view.addObject("categoryId", categoryId);
         view.addObject("categories", categories);
         return view;
     }

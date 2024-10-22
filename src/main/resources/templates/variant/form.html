@@ -17,7 +17,12 @@
             <label for="categoryId" class="form-label">Category ID</label>
             <select name="categoryId" class="form-select" id="categoryId" onchange="updateProduct(this.value)">
                 <option value="" hidden selected="true" disabled="true">Select Category</option>
-                <option th:each="category:${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                <option th:each="category : ${categories}"
+                        th:value="${category.id}"
+                        th:text="${category.name}"
+                        th:selected="${category.id == categoryId}">
+
+                </option>
             </select>
         </div>
     </div>
@@ -26,6 +31,11 @@
             <label for="productId" class="form-label">Product ID</label>
             <select name="productId" class="form-select" id="productId" th:field="*{productId}">
                 <option value="" selected="true" disabled="true">Select Product</option>
+                <option th:each="product : ${products}"
+                        th:value="${product.id}"
+                        th:selected="${product.id} == ${variant.productId}"
+                        th:text="${product.name}">
+                </option>
             </select>
         </div>
     </div>
