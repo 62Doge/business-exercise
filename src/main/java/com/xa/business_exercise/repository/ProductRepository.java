@@ -15,9 +15,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByActiveTrue();
     List<Product> findByCategoryActiveTrue();
+    List<Product> findByCategoryId(Long id);
 
     @Transactional
     @Modifying
-    @Query("UPDATE Category c SET c.active = false WHERE c.id = :id")
+    @Query("UPDATE Product p SET p.active = false WHERE p.id = :id")
     void softDeleteById(@Param("id") Long id);
 }

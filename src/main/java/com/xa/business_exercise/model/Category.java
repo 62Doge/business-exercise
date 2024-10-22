@@ -1,8 +1,11 @@
 package com.xa.business_exercise.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -20,5 +23,9 @@ public class Category extends BaseModel{
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    @OneToMany(mappedBy ="category", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<Product> products;
 
 }

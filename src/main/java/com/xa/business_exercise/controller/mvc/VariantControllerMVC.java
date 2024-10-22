@@ -1,7 +1,10 @@
 package com.xa.business_exercise.controller.mvc;
 
+import com.xa.business_exercise.model.Category;
 import com.xa.business_exercise.model.Product;
 import com.xa.business_exercise.model.Variant;
+import com.xa.business_exercise.repository.CategoryRepository;
+import com.xa.business_exercise.repository.ProductRepository;
 import com.xa.business_exercise.repository.VariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,20 +19,37 @@ import java.util.List;
 public class VariantControllerMVC {
     @Autowired
     private VariantRepository variantRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @GetMapping("")
     public ModelAndView getVariant() {
         ModelAndView view = new ModelAndView("variant/index");
-        List<Variant> variants = variantRepository.findByProductActiveTrue();
+        List<Variant> variants = variantRepository.findAll();
         view.addObject("variants", variants);
         view.addObject("title", "Master Variant");
         return view;
     }
 
+    @GetMapping("/product-category/{id}")
+    @ResponseBody
+    public List<Product> getProductCategory(@PathVariable Long id) {
+        return productRepository.findByCategoryId(id);
+    }
+
+    @GetMapping("/product/{id}")
+    public List<Variant> getProduct(@PathVariable Long id){
+        return variantRepository.findByProductId(id);
+    }
+
     @GetMapping("/form")
     public ModelAndView form() {
         ModelAndView view = new ModelAndView("variant/form");
+        List<Category> categories = categoryRepository.findByActiveTrue();
         view.addObject("variant", new Variant());
+        view.addObject("categories", categories);
         return view;
     }
 
@@ -45,7 +65,10 @@ public class VariantControllerMVC {
     public ModelAndView edit(@PathVariable Long id) {
         ModelAndView view = new ModelAndView("variant/form");
         Variant variant = variantRepository.findById(id).orElse(null);
+        List<Category> categories = categoryRepository.findByActiveTrue();
+
         view.addObject("variant", variant);
+        view.addObject("categories", categories);
         return view;
     }
 

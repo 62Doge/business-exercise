@@ -16,7 +16,8 @@
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Initial</th>
-                <th scope="col">Category Id</th>
+                <th scope="col">Category Name</th>
+                <th scope="col">Active</th>
                 <th scope="col">Created At</th>
                 <th scope="col">Updated At</th>
                 <th scope="col">Action</th>
@@ -27,9 +28,12 @@
                 <th scope="row" th:text="${iter.count}"></th>
                 <td th:text="${product.name}"></td>
                 <td th:text="${product.initial}"></td>
-                <td th:text="${product.categoryId}"></td>
-                <td th:text="${product.createdAt}"></td>
-                <td th:text="${product.updatedAt}"></td>
+                <td th:text="${product.category.name}"></td>
+                <td>
+                    <input type="checkbox" disabled="true" th:checked="${product.active}">
+                </td>
+                <td th:text="${#dates.format(product.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                <td th:text="${#dates.format(product.updatedAt, 'dd-MM-yyyy HH:mm')}"></td>
                 <td>
                     <button class="btn btn-warning" th:value="${product.id}" onclick="editForm(this.value)">Edit</button>
                     <button class="btn btn-danger" th:value="${product.id}" onclick="deleteForm(this.value)">Delete</button>

@@ -11,6 +11,27 @@ function openForm() {
     });
 }
 
+function updateProduct(categoryId){
+    $.ajax({
+        type: "get",
+        url: `/variant/product-category/${categoryId}`,
+        success: function (response) {
+            const productSelect = document.getElementById("productId");
+            productSelect.innerHTML = '<option value="0" selected="true" disabled="true">Select Product</option>';
+
+            response.forEach(product => {
+                const newOption = document.createElement("option");
+                newOption.value = product.id;
+                newOption.text = product.name;
+                productSelect.appendChild(newOption);
+            })
+        },
+        error: function (response) {
+            console.log(response);
+        }
+    })
+}
+
 function editForm(id) {
     $.ajax({
         type: "get",
@@ -37,7 +58,7 @@ function deleteForm(id) {
     });
 }
 
-function deleteProduct(id) {
+function deleteVariant(id) {
     $.ajax({
         type: "get",
         url: `/variant/soft-delete/${id}`,

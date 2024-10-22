@@ -14,9 +14,12 @@ import java.util.List;
 public interface VariantRepository extends JpaRepository<Variant, Long> {
     List<Variant> findByActiveTrue();
     List<Variant> findByProductActiveTrue();
+    List<Variant> findByProductCategoryActiveTrue();
+    List<Variant> findByProductId(Long id);
 
     @Transactional
     @Modifying
     @Query("UPDATE Variant v SET v.active = false WHERE v.id = :id")
     void softDeleteById(@Param("id") Long id);
+
 }

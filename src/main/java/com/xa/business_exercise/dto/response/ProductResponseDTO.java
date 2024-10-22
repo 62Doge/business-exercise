@@ -3,7 +3,7 @@ package com.xa.business_exercise.dto.response;
 import com.xa.business_exercise.model.Category;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 public class ProductResponseDTO {
@@ -11,6 +11,6 @@ public class ProductResponseDTO {
     private String initial;
     private String name;
     private boolean active;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 }

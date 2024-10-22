@@ -1,5 +1,6 @@
 package com.xa.business_exercise.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Cleanup;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class Variant extends BaseModel{
 
     @ManyToOne
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    @JsonManagedReference
     private Product product;
 
     @Column(name = "product_id")
@@ -38,6 +40,6 @@ public class Variant extends BaseModel{
     private BigDecimal stock;
 
     @Column(nullable = false)
-    private Boolean active;
+    private Boolean active = true;
 
 }

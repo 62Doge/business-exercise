@@ -1,8 +1,12 @@
 package com.xa.business_exercise.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -14,6 +18,7 @@ public class Product extends BaseModel{
 
     @ManyToOne
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @JsonManagedReference
     private Category category;
 
     @Column(name = "category_id")
@@ -27,5 +32,9 @@ public class Product extends BaseModel{
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<Variant> variants;
 
 }

@@ -26,6 +26,10 @@ public class VariantService {
         return variantRepository.findByProductActiveTrue();
     }
 
+    public List<Variant> findByProductCategoryActiveTrue(){
+        return variantRepository.findByProductCategoryActiveTrue();
+    }
+
     public Optional<Variant> findById(Long id){
         return variantRepository.findById(id);
     }

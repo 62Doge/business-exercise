@@ -17,9 +17,10 @@
                 <th scope="col">Name</th>
                 <th scope="col">Initial</th>
                 <th scope="col">Description</th>
-                <th scope="col">Product Id</th>
+                <th scope="col">Category/Product</th>
                 <th scope="col">Price</th>
                 <th scope="col">Stock</th>
+                <th scope="col">Active</th>
                 <th scope="col">Created At</th>
                 <th scope="col">Updated At</th>
                 <th scope="col">Action</th>
@@ -31,11 +32,14 @@
                 <td th:text="${variant.name}"></td>
                 <td th:text="${variant.initial}"></td>
                 <td th:text="${variant.description}"></td>
-                <td th:text="${variant.productId}"></td>
+                <td th:text="${variant.product.category.name + '/' + variant.product.name}"></td>
                 <td th:text="${variant.price}"></td>
                 <td th:text="${variant.stock}"></td>
-                <td th:text="${variant.createdAt}"></td>
-                <td th:text="${variant.updatedAt}"></td>
+                <td>
+                    <input type="checkbox" disabled="true" th:checked="${variant.active}">
+                </td>
+                <td th:text="${#dates.format(variant.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                <td th:text="${#dates.format(variant.updatedAt, 'dd-MM-yyyy HH:mm')}"></td>
                 <td>
                     <button class="btn btn-warning" th:value="${variant.id}" onclick="editForm(this.value)">Edit</button>
                     <button class="btn btn-danger" th:value="${variant.id}" onclick="deleteForm(this.value)">Delete</button>

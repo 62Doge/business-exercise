@@ -23,7 +23,7 @@ public class VariantController {
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<VariantResponseDTO>>> findAllVariants() {
         try {
-            List<Variant> variants = variantService.findByProductActiveTrue();
+            List<Variant> variants = variantService.findByProductCategoryActiveTrue();
             List<VariantResponseDTO> variantResponseDTOS = new ArrayList<>();
             for (Variant variant : variants) {
                 VariantResponseDTO variantResponseDTO = new VariantResponseDTO();

@@ -4,7 +4,7 @@ import com.xa.business_exercise.model.Product;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 public class VariantResponseDTO {
@@ -15,7 +15,7 @@ public class VariantResponseDTO {
     private BigDecimal price;
     private BigDecimal stock;
     private Boolean active;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 
 }

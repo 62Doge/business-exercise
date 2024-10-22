@@ -2,6 +2,7 @@ package com.xa.business_exercise.controller.mvc;
 
 import com.xa.business_exercise.model.Category;
 import com.xa.business_exercise.model.Product;
+import com.xa.business_exercise.repository.CategoryRepository;
 import com.xa.business_exercise.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,10 +18,13 @@ public class ProductControllerMVC {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @GetMapping("")
     public ModelAndView getProduct() {
         ModelAndView view = new ModelAndView("product/index");
-        List<Product> products = productRepository.findByCategoryActiveTrue();
+        List<Product> products = productRepository.findAll();
         view.addObject("products", products);
         view.addObject("title", "Master Product");
         return view;
@@ -29,7 +33,9 @@ public class ProductControllerMVC {
     @GetMapping("/form")
     public ModelAndView form() {
         ModelAndView view = new ModelAndView("product/form");
+        List<Category> categories = categoryRepository.findByActiveTrue();
         view.addObject("product", new Product());
+        view.addObject("categories", categories);
         return view;
     }
 
@@ -45,7 +51,9 @@ public class ProductControllerMVC {
     public ModelAndView edit(@PathVariable Long id) {
         ModelAndView view = new ModelAndView("product/form");
         Product product = productRepository.findById(id).orElse(null);
+        List<Category> categories = categoryRepository.findByActiveTrue();
         view.addObject("product", product);
+        view.addObject("categories", categories);
         return view;
     }
 

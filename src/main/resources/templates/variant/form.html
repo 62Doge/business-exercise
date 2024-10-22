@@ -10,11 +10,24 @@
     </div>
     <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <input type="text" class="form-control" name="description" id="description" placeholder="Input Product Description" th:field="*{description}">
+        <textarea id="description" class="form-control" name="description" rows="4" cols="50" th:field="*{description}" placeholder="Input Product Description"></textarea>
     </div>
     <div class="mb-3">
-        <label for="productId" class="form-label">Product ID</label>
-        <input type="number" class="form-control" name="productId" id="productId" placeholder="Input Category Initial" th:field="*{productId}">
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Category ID</label>
+            <select name="categoryId" class="form-select" id="categoryId" onchange="updateProduct(this.value)">
+                <option value="" hidden selected="true" disabled="true">Select Category</option>
+                <option th:each="category:${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select>
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="mb-3">
+            <label for="productId" class="form-label">Product ID</label>
+            <select name="productId" class="form-select" id="productId" th:field="*{productId}">
+                <option value="" selected="true" disabled="true">Select Product</option>
+            </select>
+        </div>
     </div>
     <div class="mb-3">
         <label for="price" class="form-label">Price</label>
@@ -23,6 +36,10 @@
     <div class="mb-3">
         <label for="stock" class="form-label">Stock</label>
         <input type="number" class="form-control" name="stock" id="stock" placeholder="Input Variant Stock" th:field="*{stock}">
+    </div>
+    <div class="mb-3">
+        <label for="variantActive" class="form-label">Active</label>
+        <input id="variantActive" type="checkbox" th:checked="${variant.active}">
     </div>
     <button type="submit" class="btn btn-primary" style="float: right;">Save</button>
 </form>

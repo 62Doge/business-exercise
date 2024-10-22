@@ -10,7 +10,14 @@
     </div>
     <div class="mb-3">
         <label for="categoryId" class="form-label">Category ID</label>
-        <input type="number" class="form-control" name="categoryId" id="categoryId" placeholder="Input Category Initial" th:field="*{categoryId}">
+        <select name="categoryId" id="categoryId" class="form-select">
+            <option value="" hidden selected="true" disabled="true">Select Category</option>
+            <option th:each="category:${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="productActive" class="form-label">Active</label>
+        <input id="productActive" type="checkbox" th:checked="${product.active}">
     </div>
     <button type="submit" class="btn btn-primary" style="float: right;">Save</button>
 </form>

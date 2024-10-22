@@ -8,5 +8,9 @@
         <label for="categoryInitial" class="form-label">Initial</label>
         <input type="text" class="form-control" name="initial" id="categoryInitial" placeholder="Input Category Initial" th:field="*{initial}">
     </div>
+    <div class="mb-3">
+        <label for="categoryActive" class="form-label">Active</label>
+        <input id="categoryActive" class="" type="checkbox" th:checked="${category.active}">
+    </div>
     <button type="submit" class="btn btn-primary" style="float: right;">Save</button>
 </form>
