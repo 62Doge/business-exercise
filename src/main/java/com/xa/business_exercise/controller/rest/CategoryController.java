@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/category")
+@CrossOrigin("*")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
@@ -23,45 +25,56 @@ public class CategoryController {
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<CategoryResponseDTO>>> findAllCategories(){
         try {
-            List<Category> categories = categoryService.findByActiveTrue();
+            List<Category> categories = categoryService.findAll();
             List<CategoryResponseDTO> categoryResponseDTOS = new ArrayList<>();
+
             for (Category category : categories) {
-                CategoryResponseDTO categoryResponseDTO = new CategoryResponseDTO();
-                categoryResponseDTO.setInitial(category.getInitial());
-                categoryResponseDTO.setName(category.getName());
-                categoryResponseDTO.setActive(category.getActive());
-                categoryResponseDTO.setCreatedAt(category.getCreatedAt());
-                categoryResponseDTO.setUpdatedAt(category.getUpdatedAt());
+                CategoryResponseDTO categoryResponseDTO = CategoryResponseDTO.convertToResponseDTO(category);
                 categoryResponseDTOS.add(categoryResponseDTO);
             }
-            ApiResponse<List<CategoryResponseDTO>> successResponse = new ApiResponse<>(HttpStatus.OK.value(), "success", categoryResponseDTOS);
+
+            ApiResponse<List<CategoryResponseDTO>> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), categoryResponseDTOS);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }catch (Exception e){
             ApiResponse<List<CategoryResponseDTO>> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
-    @PatchMapping("/soft-delete/{id}")
-    public ResponseEntity<ApiResponse<CategoryRequestDTO>> softDelete(@PathVariable("id") Long id){
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<CategoryResponseDTO>>> findAllActiveCategories(){
         try {
-            Optional<Category> optionalCategory = categoryService.findById(id);
-            if (optionalCategory.isPresent()) {
-                Category category = optionalCategory.get();
-                category.setActive(false);
+            List<Category> categories = categoryService.findByActiveTrue();
+            List<CategoryResponseDTO> categoryResponseDTOS = new ArrayList<>();
 
-                Category savedCategory = categoryService.save(category);
-                CategoryRequestDTO categoryResponseDTO = convertToDTO(savedCategory);
+            for (Category category : categories) {
+                CategoryResponseDTO categoryResponseDTO = CategoryResponseDTO.convertToResponseDTO(category);
+                categoryResponseDTOS.add(categoryResponseDTO);
+            }
 
-                ApiResponse<CategoryRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), categoryResponseDTO);
+            ApiResponse<List<CategoryResponseDTO>> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), categoryResponseDTOS);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        }catch (Exception e){
+            ApiResponse<List<CategoryResponseDTO>> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<CategoryResponseDTO>> findCategoryById(@PathVariable("id") Long id){
+        try {
+            Optional<Category> category = categoryService.findById(id);
+
+            if (category.isPresent()) {
+                CategoryResponseDTO categoryResponseDTO = CategoryResponseDTO.convertToResponseDTO(category.get());
+                ApiResponse<CategoryResponseDTO> successResponse =  new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), categoryResponseDTO);
                 return new ResponseEntity<>(successResponse, HttpStatus.OK);
             } else {
-                ApiResponse<CategoryRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), null);
+                ApiResponse<CategoryResponseDTO> notFoundResponse =  new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase());
                 return new ResponseEntity<>(notFoundResponse, HttpStatus.NOT_FOUND);
             }
         }catch (Exception e){
-            ApiResponse<CategoryRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+            ApiResponse<CategoryResponseDTO> errorResponse =  new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -75,9 +88,9 @@ public class CategoryController {
             category.setActive(categoryRequestDTO.getActive());
 
             Category savedCategory = categoryService.save(category);
-            CategoryRequestDTO saveCategoryRequestDTO = convertToDTO(savedCategory);
+            CategoryRequestDTO saveCategoryRequestDTO = CategoryRequestDTO.convertToRequestDTO(savedCategory);
 
-            ApiResponse<CategoryRequestDTO> successResponse = new ApiResponse<>(HttpStatus.CREATED.value(), "success", saveCategoryRequestDTO);
+            ApiResponse<CategoryRequestDTO> successResponse = new ApiResponse<>(HttpStatus.CREATED.value(), HttpStatus.OK.getReasonPhrase(), saveCategoryRequestDTO);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }catch (Exception e){
             ApiResponse<CategoryRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
@@ -102,10 +115,34 @@ public class CategoryController {
             }
 
             Category savedCategory = categoryService.save(category);
-            CategoryRequestDTO categoryRequestDTOSaved = convertToDTO(savedCategory);
+            CategoryRequestDTO categoryRequestDTOSaved = CategoryRequestDTO.convertToRequestDTO(savedCategory);
 
             ApiResponse<CategoryRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), categoryRequestDTOSaved);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        }catch (Exception e){
+            ApiResponse<CategoryRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/soft-delete/{id}")
+    public ResponseEntity<ApiResponse<CategoryRequestDTO>> softDelete(@PathVariable("id") Long id){
+        try {
+            Optional<Category> optionalCategory = categoryService.findById(id);
+
+            if (optionalCategory.isPresent()) {
+                Category category = optionalCategory.get();
+                category.setActive(false);
+
+                Category savedCategory = categoryService.save(category);
+                CategoryRequestDTO categoryResponseDTO = CategoryRequestDTO.convertToRequestDTO(savedCategory);
+
+                ApiResponse<CategoryRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), categoryResponseDTO);
+                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+            } else {
+                ApiResponse<CategoryRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase());
+                return new ResponseEntity<>(notFoundResponse, HttpStatus.NOT_FOUND);
+            }
         }catch (Exception e){
             ApiResponse<CategoryRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -118,7 +155,7 @@ public class CategoryController {
             Optional<Category> categoryOptional = categoryService.findById(id);
 
             if (categoryOptional.isEmpty()) {
-                ApiResponse<CategoryRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), null);
+                ApiResponse<CategoryRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase());
                 return new ResponseEntity<>(notFoundResponse, HttpStatus.NOT_FOUND);
             }
 
@@ -130,14 +167,6 @@ public class CategoryController {
             ApiResponse<CategoryRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private CategoryRequestDTO convertToDTO(Category category) {
-        CategoryRequestDTO categoryRequestDTO = new CategoryRequestDTO();
-        categoryRequestDTO.setInitial(category.getInitial());
-        categoryRequestDTO.setName(category.getName());
-        categoryRequestDTO.setActive(category.getActive());
-        return categoryRequestDTO;
     }
 
 }

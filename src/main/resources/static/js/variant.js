@@ -11,7 +11,7 @@ function openForm() {
     });
 }
 
-function updateProduct(categoryId){
+function updateVariant(categoryId){
     $.ajax({
         type: "get",
         url: `/variant/product-category/${categoryId}`,
@@ -45,15 +45,9 @@ function editForm(id) {
             const categoryId = $('#categoryId').val();
             const selectedProductId = $('#productId').val();
 
-            // const variantData = $('#variantForm').data('variant');
-            // const selectedCategoryId = variantData.product.categoryId;
-            // const selectedProductId = variantData.productId;
-
             $('#categoryId').val(categoryId);
             updateProduct(categoryId);
 
-            // $('#categoryId').val(selectedCategoryId);
-            // updateProduct(selectedCategoryId);
             setTimeout(() => {
                 $('#productId').val(selectedProductId);
             }, 500);

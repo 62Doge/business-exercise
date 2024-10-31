@@ -1,6 +1,5 @@
 package com.xa.business_exercise.service;
 
-import com.xa.business_exercise.model.Category;
 import com.xa.business_exercise.model.Variant;
 import com.xa.business_exercise.repository.VariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;

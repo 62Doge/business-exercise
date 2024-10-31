@@ -22,6 +22,10 @@ public class ProductService {
         return productRepository.findByActiveTrue();
     }
 
+    public List<Product> findByCategoryId(Long id) {
+        return productRepository.findByCategoryId(id);
+    }
+
     public List<Product> findByCategoryActiveTrue(){
         return productRepository.findByCategoryActiveTrue();
     }

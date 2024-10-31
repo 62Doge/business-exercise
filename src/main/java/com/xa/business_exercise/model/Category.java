@@ -24,8 +24,8 @@ public class Category extends BaseModel{
     @Column(nullable = false)
     private Boolean active = true;
 
-    @OneToMany(mappedBy ="category", cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<Product> products;
+//    @OneToMany(mappedBy ="category", cascade = CascadeType.ALL)
+//    @JsonBackReference
+//    private List<Product> products;
 
 }

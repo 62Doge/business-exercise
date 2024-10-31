@@ -18,7 +18,6 @@ public class Product extends BaseModel{
 
     @ManyToOne
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
-    @JsonManagedReference
     private Category category;
 
     @Column(name = "category_id")
@@ -33,8 +32,8 @@ public class Product extends BaseModel{
     @Column(nullable = false)
     private Boolean active = true;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<Variant> variants;
+//    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+//    @JsonBackReference
+//    private List<Variant> variants;
 
 }

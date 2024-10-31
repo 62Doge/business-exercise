@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/variant")
+@CrossOrigin("*")
 public class VariantController {
     @Autowired
     private VariantService variantService;
@@ -25,16 +26,12 @@ public class VariantController {
         try {
             List<Variant> variants = variantService.findByProductCategoryActiveTrue();
             List<VariantResponseDTO> variantResponseDTOS = new ArrayList<>();
+
             for (Variant variant : variants) {
-                VariantResponseDTO variantResponseDTO = new VariantResponseDTO();
-                variantResponseDTO.setProduct(variant.getProduct());
-                variantResponseDTO.setInitial(variant.getInitial());
-                variantResponseDTO.setName(variant.getName());
-                variantResponseDTO.setDescription(variant.getDescription());
-                variantResponseDTO.setPrice(variant.getPrice());
-                variantResponseDTO.setStock(variant.getStock());
+                VariantResponseDTO variantResponseDTO = VariantResponseDTO.convertToResponseDTO(variant);
                 variantResponseDTOS.add(variantResponseDTO);
             }
+
             ApiResponse<List<VariantResponseDTO>> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), variantResponseDTOS);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }catch (Exception e) {
@@ -43,28 +40,26 @@ public class VariantController {
         }
     }
 
-    @PatchMapping("/soft-delete/{id}")
-    public ResponseEntity<ApiResponse<VariantRequestDTO>> softDelete(@PathVariable("id") Long id){
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<VariantResponseDTO>> findById(@PathVariable("id") Long id) {
         try {
-            Optional<Variant> optionalVariant = variantService.findById(id);
-            if (optionalVariant.isPresent()) {
-                Variant variant = optionalVariant.get();
-                variant.setActive(false);
+            Optional<Variant> variant = variantService.findById(id);
 
-                Variant savedVariant = variantService.save(variant);
-                VariantRequestDTO variantRequestDTO = convertToDTO(savedVariant);
-
-                ApiResponse<VariantRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), variantRequestDTO);
+            if (variant.isPresent()) {
+                VariantResponseDTO variantResponseDTO = VariantResponseDTO.convertToResponseDTO(variant.get());
+                ApiResponse<VariantResponseDTO> successResponse =  new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), variantResponseDTO);
                 return new ResponseEntity<>(successResponse, HttpStatus.OK);
             } else {
-                ApiResponse<VariantRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), null);
+                ApiResponse<VariantResponseDTO> notFoundResponse =  new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase());
                 return new ResponseEntity<>(notFoundResponse, HttpStatus.NOT_FOUND);
             }
-        }catch (Exception e){
-            ApiResponse<VariantRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+        }catch (Exception e) {
+            ApiResponse<VariantResponseDTO> errorResponse =  new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     @PostMapping("/save")
     public ResponseEntity<ApiResponse<VariantRequestDTO>> saveVariant(@RequestBody VariantRequestDTO variantRequestDTO) {
@@ -79,7 +74,7 @@ public class VariantController {
             variant.setActive(variantRequestDTO.getActive());
 
             Variant savedVariant = variantService.save(variant);
-            VariantRequestDTO savedVariantRequestDTO = convertToDTO(savedVariant);
+            VariantRequestDTO savedVariantRequestDTO = VariantRequestDTO.convertToRequestDTO(savedVariant);
 
             ApiResponse<VariantRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), savedVariantRequestDTO);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
@@ -110,12 +105,35 @@ public class VariantController {
             }
 
             Variant savedVariant = variantService.save(variant);
-            VariantRequestDTO savedVariantRequestDTO = convertToDTO(savedVariant);
+            VariantRequestDTO savedVariantRequestDTO = VariantRequestDTO.convertToRequestDTO(savedVariant);
 
             ApiResponse<VariantRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), savedVariantRequestDTO);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }catch (Exception e) {
             ApiResponse<VariantRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/soft-delete/{id}")
+    public ResponseEntity<ApiResponse<VariantRequestDTO>> softDelete(@PathVariable("id") Long id){
+        try {
+            Optional<Variant> optionalVariant = variantService.findById(id);
+            if (optionalVariant.isPresent()) {
+                Variant variant = optionalVariant.get();
+                variant.setActive(false);
+
+                Variant savedVariant = variantService.save(variant);
+                VariantRequestDTO variantRequestDTO = VariantRequestDTO.convertToRequestDTO(savedVariant);
+
+                ApiResponse<VariantRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), variantRequestDTO);
+                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+            } else {
+                ApiResponse<VariantRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), null);
+                return new ResponseEntity<>(notFoundResponse, HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            ApiResponse<VariantRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -138,19 +156,5 @@ public class VariantController {
             ApiResponse<VariantRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-
-
-    private VariantRequestDTO convertToDTO(Variant variant) {
-        VariantRequestDTO variantRequestDTO = new VariantRequestDTO();
-        variantRequestDTO.setProductId(variant.getProductId());
-        variantRequestDTO.setInitial(variant.getInitial());
-        variantRequestDTO.setName(variant.getName());
-        variantRequestDTO.setDescription(variant.getDescription());
-        variantRequestDTO.setPrice(variant.getPrice());
-        variantRequestDTO.setStock(variant.getStock());
-        variantRequestDTO.setActive(variant.getActive());
-        return variantRequestDTO;
     }
 }

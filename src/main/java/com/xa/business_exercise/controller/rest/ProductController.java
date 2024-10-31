@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/product")
+@CrossOrigin("*")
 public class ProductController {
     @Autowired
     private ProductService productService;
@@ -23,19 +25,15 @@ public class ProductController {
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> findAllProducts() {
         try {
-            List<Product> products = productService.findByCategoryActiveTrue();
+            List<Product> products = productService.findAll();
             List<ProductResponseDTO> productResponseDTOS = new ArrayList<>();
+
             for (Product product : products) {
-                ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-                productResponseDTO.setCategory(product.getCategory());
-                productResponseDTO.setInitial(product.getInitial());
-                productResponseDTO.setName(product.getName());
-                productResponseDTO.setActive(product.getActive());
-                productResponseDTO.setCreatedAt(product.getCreatedAt());
-                productResponseDTO.setUpdatedAt(product.getUpdatedAt());
+                ProductResponseDTO productResponseDTO = ProductResponseDTO.convertToResponseDTO(product);
                 productResponseDTOS.add(productResponseDTO);
             }
-            ApiResponse<List<ProductResponseDTO>> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), productResponseDTOS );
+
+            ApiResponse<List<ProductResponseDTO>> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), productResponseDTOS);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }catch (Exception e) {
             ApiResponse<List<ProductResponseDTO>> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
@@ -43,25 +41,37 @@ public class ProductController {
         }
     }
 
-    @PatchMapping("/soft-delete/{id}")
-    public ResponseEntity<ApiResponse<ProductRequestDTO>> softDelete(@PathVariable("id") Long id){
+    @GetMapping("/by-category/{categoryId}")
+    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> findProductsByCategory(@PathVariable Long categoryId) {
         try {
-            Optional<Product> optionalProduct = productService.findById(id);
-            if (optionalProduct.isPresent()) {
-                Product product = optionalProduct.get();
-                product.setActive(false);
+            List<Product> products = productService.findByCategoryId(categoryId);
+            List<ProductResponseDTO> productResponseDTOS = products.stream()
+                    .map(ProductResponseDTO::convertToResponseDTO)
+                    .collect(Collectors.toList());
 
-                Product savedProduct = productService.save(product);
-                ProductRequestDTO productRequestDTO = convertToDTO(savedProduct);
+            ApiResponse<List<ProductResponseDTO>> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), productResponseDTOS);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            ApiResponse<List<ProductResponseDTO>> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-                ApiResponse<ProductRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), productRequestDTO);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> findProductById(@PathVariable("id") Long id){
+        try {
+            Optional<Product> product = productService.findById(id);
+
+            if (product.isPresent()) {
+                ProductResponseDTO productResponseDTO = ProductResponseDTO.convertToResponseDTO(product.get());
+                ApiResponse<ProductResponseDTO> successResponse =  new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), productResponseDTO);
                 return new ResponseEntity<>(successResponse, HttpStatus.OK);
             } else {
-                ApiResponse<ProductRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), null);
+                ApiResponse<ProductResponseDTO> notFoundResponse =  new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase());
                 return new ResponseEntity<>(notFoundResponse, HttpStatus.NOT_FOUND);
             }
         }catch (Exception e){
-            ApiResponse<ProductRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+            ApiResponse<ProductResponseDTO> errorResponse =  new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -76,7 +86,7 @@ public class ProductController {
             product.setActive(productRequestDTO.isActive());
 
             Product savedProduct = productService.save(product);
-            ProductRequestDTO savedProductRequestDTO = convertToDTO(savedProduct);
+            ProductRequestDTO savedProductRequestDTO = ProductRequestDTO.convertToRequestDTO(savedProduct);
 
             ApiResponse<ProductRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), savedProductRequestDTO);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
@@ -104,12 +114,35 @@ public class ProductController {
             }
 
             Product savedProduct = productService.save(product);
-            ProductRequestDTO savedProductRequestDTO = convertToDTO(savedProduct);
+            ProductRequestDTO savedProductRequestDTO = ProductRequestDTO.convertToRequestDTO(savedProduct);
 
             ApiResponse<ProductRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), savedProductRequestDTO);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }catch (Exception e) {
             ApiResponse<ProductRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), null);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/soft-delete/{id}")
+    public ResponseEntity<ApiResponse<ProductRequestDTO>> softDelete(@PathVariable("id") Long id){
+        try {
+            Optional<Product> optionalProduct = productService.findById(id);
+            if (optionalProduct.isPresent()) {
+                Product product = optionalProduct.get();
+                product.setActive(false);
+
+                Product savedProduct = productService.save(product);
+                ProductRequestDTO productRequestDTO = ProductRequestDTO.convertToRequestDTO(savedProduct);
+
+                ApiResponse<ProductRequestDTO> successResponse = new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), productRequestDTO);
+                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+            } else {
+                ApiResponse<ProductRequestDTO> notFoundResponse = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), null);
+                return new ResponseEntity<>(notFoundResponse, HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            ApiResponse<ProductRequestDTO> errorResponse = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -133,15 +166,4 @@ public class ProductController {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    private ProductRequestDTO convertToDTO(Product product) {
-        ProductRequestDTO productRequestDTO = new ProductRequestDTO();
-        productRequestDTO.setCategoryId(product.getCategoryId());
-        productRequestDTO.setInitial(product.getInitial());
-        productRequestDTO.setName(product.getName());
-        productRequestDTO.setActive(product.getActive());
-        return productRequestDTO;
-    }
-
-
 }
